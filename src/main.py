@@ -35,6 +35,10 @@ def show_all(db: Session=Depends(get_db)):
     users=db.query(models.models.User).all()
     return users
 
+@app.get('/user/{id}')
+def show_single_user(id,db: Session=Depends(get_db)):
+    user=db.query(models.models.User).filter(models.models.User.id==id).first()
+    return user
 
 
 
