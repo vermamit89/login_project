@@ -26,7 +26,7 @@ def start():
 def new_user(req:models.schemas.User_creation,db: Session=Depends(get_db)):
     h_p= bcrypt.hash("req.password")
     h_m= bcrypt.hash("req.mobile")
-    new_user=models.models.User(email=req.email,password=h_p,mobile=h_m)
+    new_user=models.models.User(name=req.name,email=req.email,password=h_p,mobile=h_m)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
