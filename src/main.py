@@ -1,6 +1,5 @@
 from fastapi import FastAPI,Depends
-
-
+from passlib.hash import bcrypt
 import uvicorn
 import models.schemas,models.models,models.database
 from sqlalchemy.orm import Session
@@ -22,9 +21,12 @@ def get_db():
 def start():
     return "server is live"
 
+
 @app.post('/user/signin')
 def new_user(req:models.schemas.User_creation,db: Session=Depends(get_db)):
-    new_user=models.models.User(email=req.email,password=req.password,mobile=req.mobile)
+    h_p= bcrypt.hash("req.password")
+    h_m= bcrypt.hash("req.mobile")
+    new_user=models.models.User(email=req.email,password=h_p,mobile=h_m)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
