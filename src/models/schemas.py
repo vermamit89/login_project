@@ -5,3 +5,9 @@ class User_creation(BaseModel):
     email: str
     password: str
     mobile:int
+
+class Show_User(BaseModel):
+    name:str
+    email: str
+    class Config():
+        orm_mode=True
