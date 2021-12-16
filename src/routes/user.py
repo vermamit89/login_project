@@ -1,33 +1,24 @@
 from typing import List
-from fastapi import APIRouter,status,Depends,HTTPException
+from fastapi import APIRouter,status,Depends
 import models.schemas,models.models,models.database
 from sqlalchemy.orm import Session
-from passlib.hash import bcrypt
+import controllers.user
 
-router=APIRouter()
+router=APIRouter(
+       prefix='/user',
+       tags=['User']
+)
 
 get_db=models.database.get_db
 
-@router.post('/user/signin',status_code=status.HTTP_201_CREATED)
+@router.post('/signin',status_code=status.HTTP_201_CREATED)
 def new_user(req:models.schemas.User_creation,db: Session=Depends(get_db)):
-    h_p= bcrypt.hash("req.password")
-    h_m= bcrypt.hash("req.mobile")
-    new_user=models.models.User(name=req.name,email=req.email,password=h_p,mobile=h_m)
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-    return new_user
+    return controllers.user.create(req,db)
 
-@router.get('/user',status_code=status.HTTP_200_OK,response_model=List[models.schemas.Show_User])
+@router.get('/',status_code=status.HTTP_200_OK,response_model=List[models.schemas.Show_User])
 def show_all(db: Session=Depends(get_db)):
-    users=db.query(models.models.User).all()
-    return users
+    return controllers.user.show_all(db)
 
-@router.get('/user/{id}',status_code=status.HTTP_200_OK,response_model=models.schemas.Show_User)
+@router.get('/{id}',status_code=status.HTTP_200_OK,response_model=models.schemas.Show_User)
 def show_single_user(id,db: Session=Depends(get_db)):
-    user=db.query(models.models.User).filter(models.models.User.id==id).first()
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"user with id {id} is not available")
-
-    return user
+    return controllers.user.show_1(id,db)
