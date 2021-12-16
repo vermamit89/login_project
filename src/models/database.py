@@ -9,3 +9,11 @@ engine=create_engine(SQL_DB_URL,connect_args={'check_same_thread':False})
 sessionlocal=sessionmaker(bind=engine,autocommit=False ,autoflush=False)
 
 base=declarative_base()
+
+
+def get_db():
+    db=sessionlocal()
+    try:
+        yield db
+    finally:
+        db.close()
