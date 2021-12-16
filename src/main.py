@@ -1,4 +1,4 @@
-from fastapi import FastAPI,Depends
+from fastapi import FastAPI,Depends,status,HTTPException
 from passlib.hash import bcrypt
 import uvicorn
 import models.schemas,models.models,models.database
@@ -22,7 +22,7 @@ def start():
     return "server is live"
 
 
-@app.post('/user/signin')
+@app.post('/user/signin',status_code=status.HTTP_201_CREATED)
 def new_user(req:models.schemas.User_creation,db: Session=Depends(get_db)):
     h_p= bcrypt.hash("req.password")
     h_m= bcrypt.hash("req.mobile")
@@ -37,9 +37,13 @@ def show_all(db: Session=Depends(get_db)):
     users=db.query(models.models.User).all()
     return users
 
-@app.get('/user/{id}')
+@app.get('/user/{id}',status_code=status.HTTP_200_OK)
 def show_single_user(id,db: Session=Depends(get_db)):
     user=db.query(models.models.User).filter(models.models.User.id==id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"user with id {id} is not available")
+
     return user
 
 
