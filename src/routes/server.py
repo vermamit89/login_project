@@ -5,4 +5,4 @@ router=APIRouter(tags=['Server'])
 
 @router.get('/')
 def start():
-    return "server is live"
+    return "server is live now"
