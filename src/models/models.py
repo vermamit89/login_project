@@ -1,4 +1,6 @@
-from sqlalchemy import Column,Integer,String
+
+from sqlalchemy import Column,Integer,String,Boolean
+
 
 from . database import base
 
@@ -11,4 +13,7 @@ class User(base):
     email=Column(String)
     password=Column(String)
     mobile=Column(Integer)
+    isVerified=Column(Boolean)
+    uniqueId=Column(String)
+
 
