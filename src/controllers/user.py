@@ -9,6 +9,10 @@ get_db=models.database.get_db
 
 
 def create_user(req:models.schemas.User_creation,db: Session=Depends(get_db)):
+    user = db.query(models.models.User).filter(models.models.User.email==req.email).first()
+    if user:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=f'User record already exist!!!')
     u_id=uuid.uuid4()
     h_p= bcrypt.hash(req.password)
     h_m= bcrypt.hash(req.mobile)
@@ -34,7 +38,10 @@ def show_1(id:int, db: Session=Depends(get_db)):
     user=db.query(models.models.User).filter(models.models.User.id==id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"user with id {id} is not available")
+                            detail=f"User with id {id} is not available")
+    elif user.isVerified == False:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f"User with id {id} is not verified")
 
     return user
 
