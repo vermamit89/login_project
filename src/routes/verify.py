@@ -1,10 +1,11 @@
 from fastapi import APIRouter,Depends
-import models.database,controllers.verify
+from ..models import database
+from ..controllers import verify
 from sqlalchemy.orm import Session
 
 router=APIRouter(prefix='/verify', tags=["Verification"])
 
 @router.get('/{uniqueId}')
-def veryfy_email(uniqueId,db:Session=Depends(models.database.get_db)):
-    return controllers.verify.verify_email(uniqueId,db)
+def veryfy_email(uniqueId,db:Session=Depends(database.get_db)):
+    return verify.verify_email(uniqueId,db)
     

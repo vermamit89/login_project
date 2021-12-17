@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-import models.JWToken
+from ..models import JWToken
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
@@ -12,4 +12,4 @@ def get_current_user(data: str = Depends(oauth2_scheme)):
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    return models.JWToken.verify_token(data, credentials_exception)
+    return JWToken.verify_token(data, credentials_exception)
