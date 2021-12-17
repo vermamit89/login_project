@@ -22,7 +22,7 @@ def create_user(req:schemas.User_creation,db: Session=Depends(get_db)):
     db.commit()
     db.refresh(new_user)
     yag = yagmail.SMTP("vermatest1@gmail.com",'Test@Verma2')
-    contents = ['http://localhost:3000/verify/' + new_user.uniqueId]
+    contents = ['https://fast-api-userbase.herokuapp.com/' + new_user.uniqueId]
     yag.send(new_user.email, 'Verify-Email', contents)
 
     return new_user
