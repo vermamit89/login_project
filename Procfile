@@ -1,1 +1,2 @@
-web: gunicorn -w 4 -k uvicorn.workers.UvicornWorker src.main:app
+web: python src/main.py
+worker: python src/main.py
