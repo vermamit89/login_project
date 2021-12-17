@@ -10,6 +10,7 @@ class User_creation(BaseModel):
 class Show_User(BaseModel):
     name:str
     email: str
+    id:str
     class Config():
         orm_mode=True
 
