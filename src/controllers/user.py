@@ -1,5 +1,6 @@
 from fastapi import Depends,status,HTTPException
 from ..models import schemas,database,models
+from ..controllers import emailvalidation 
 from sqlalchemy.orm import Session
 from passlib.hash import bcrypt
 import uuid
@@ -19,20 +20,23 @@ def create_user(req:schemas.User_creation,db: Session=Depends(get_db)):
         h_m= bcrypt.hash(req.mobile)
         new_user=models.User(name=req.name,email=req.email,password=h_p,
                                     mobile=h_m,isVerified=False,uniqueId=str(u_id))
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
-        yag = yagmail.SMTP("vermatest1@gmail.com",'Test@Verma2')
-        contents = [
-            "Thanks for signing up with us! You must follow this link to verify your account:",
+        if emailvalidation.validate(req.email) :
+            db.add(new_user)
+            db.commit()
+            db.refresh(new_user)
+            yag = yagmail.SMTP("vermatest1@gmail.com",'password')
+            contents = [
+                "Thanks for signing up with us! You must follow this link to verify your account:",
 
-            "https://fast-api-userbase.herokuapp.com/verify/"+new_user.uniqueId,
+               "https://fast-api-userbase.herokuapp.com/verify/"+new_user.uniqueId,
 
-            "Have fun, and don't hesitate to contact us with your feedback."
-            ]
-        yag.send(new_user.email, 'Verify-Email', contents)
+                "Have fun, and don't hesitate to contact us with your feedback."
+                ]
+            yag.send(new_user.email, 'Verify-Email', contents)
 
-        return f"We have sent a verification mail to '{new_user.email}'. Please check your inbox and verify to continue."
+            return f"We have sent a verification mail to '{new_user.email}'. Please check your inbox and verify to continue."
+        else:
+            return '''Invalid email-id is given.Please give the correct one'''
     else: 
         return f"Please provide a valid mobile number!"
 
