@@ -5,6 +5,12 @@ from sqlalchemy.orm import Session
 from passlib.hash import bcrypt
 import uuid
 import yagmail
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+EMAIL=os.getenv("EMAIL")
+PASSWORD=os.getenv("PASSWORD")
 
 get_db=database.get_db
 
@@ -24,7 +30,7 @@ def create_user(req:schemas.User_creation,db: Session=Depends(get_db)):
             db.add(new_user)
             db.commit()
             db.refresh(new_user)
-            yag = yagmail.SMTP("vermatest1@gmail.com",'password')
+            yag = yagmail.SMTP(EMAIL,PASSWORD)
             contents = [
                 "Thanks for signing up with us! You must follow this link to verify your account:",
 
