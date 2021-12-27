@@ -20,7 +20,7 @@ def create_user(req:schemas.User_creation,db: Session=Depends(get_db)):
     if user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f'User record already exist!!!')
-    if len(req.mobile) == 10 and req.mobile.isnumeric():
+    if len(req.mobile) == 10 and req.mobile.isnumeric() and (req.mobile[0]==6 or             req.mobile[0]==7 or req.mobile[0]==8 or req.mobile[0]==9) :
         u_id=uuid.uuid4()
         h_p= bcrypt.hash(req.password)
         h_m= bcrypt.hash(req.mobile)
