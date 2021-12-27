@@ -13,8 +13,8 @@ def verify_email(uniqueId,db:Session=Depends(database.get_db)):
         # user.isVerified(True)
         db.commit()
         db.refresh(user)
-        return 'Verified Successfully'
+        return 'Email Verified Successfully'
     elif user and user.isVerified==True:
-        return "Already Verified"
+        return "Email Already Verified"
     else:
-        return 'Not Verified'
+        return 'Email Not Verified'
