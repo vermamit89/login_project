@@ -22,6 +22,10 @@ def new_user(req:schemas.User_creation,db: Session=Depends(get_db)):
 # def show_all(db: Session=Depends(get_db)):
 #     return user.show_all(db)
 
+@router.delete('/{id}',status_code=status.HTTP_204_NO_CONTENT)
+def destroy(id,db:Session=Depends(database.get_db)):
+    return user.destroy(id,db)
+
 @router.get('/{id}',status_code=status.HTTP_200_OK,response_model=schemas.Show_User)
 def show_single_user(id,db: Session=Depends(get_db), get_current_user: schemas.Show_User =  Depends(oauth2.get_current_user)):
     return user.show_1(id,db)

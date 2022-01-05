@@ -48,6 +48,13 @@ def create_user(req:schemas.User_creation,db: Session=Depends(get_db)):
 
 
 
+def destroy(id,db:Session=Depends(database.get_db)):
+    user_delete=db.query(models.User).filter(models.User.id==id)
+    if not user_delete.first():
+        raise HTTPException(status_code=404, detail=f'user with the id {id} not found to delete')
+    user_delete.delete(synchronize_session=False)
+    db.commit()
+    return 'Deleted'
 
 def show_all(db: Session=Depends(get_db)):
     users=db.query(models.User).all()
