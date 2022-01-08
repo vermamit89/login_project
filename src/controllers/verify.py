@@ -1,16 +1,20 @@
 from ..models import models,database
 from sqlalchemy.orm import Session
 from fastapi import Depends
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+ADMIN_EMAIL=os.getenv("ADMIN_EMAIL")
 
 
 
 def verify_email(uniqueId,db:Session=Depends(database.get_db)):
-    # U_ID=db.query(models.models.User).filter(models.models.User.uniqueId==uniqueId).first()
     user=db.query(models.User).filter(models.User.uniqueId==uniqueId).first()
-    # IV=db.query(models.models.User).filter(models.models.User.isVerified).first()
     if user and user.isVerified==False:
+        if user and user.email == ADMIN_EMAIL:
+            user.isAdmin=1
         user.isVerified=True
-        # user.isVerified(True)
         db.commit()
         db.refresh(user)
         return 'Email Verified Successfully'
@@ -18,3 +22,6 @@ def verify_email(uniqueId,db:Session=Depends(database.get_db)):
         return "Email Already Verified"
     else:
         return 'Email Not Verified'
+    
+
+
