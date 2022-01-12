@@ -1,31 +1,36 @@
 from fastapi import Depends,status,HTTPException
 from ..models import schemas,database,models
-from ..controllers import emailvalidation 
+from ..controllers import emailvalidation
 from sqlalchemy.orm import Session
 from passlib.hash import bcrypt
 import uuid
 import yagmail
 from dotenv import load_dotenv
 import os
+import rsa
 
 load_dotenv()
 EMAIL=os.getenv("EMAIL")
 PASSWORD=os.getenv("PASSWORD")
 
+
 get_db=database.get_db
 
 
 def create_user(req:schemas.User_creation,db: Session=Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email==req.email).first()
-    if user:
+    publicKey, privateKey = rsa.newkeys(512)
+    user_delete = db.query(models.User).filter(models.User.email==req.email).first()
+    if user_delete:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f'User record already exist!!!')
     if len(req.mobile) == 10 and req.mobile.isnumeric() and int(req.mobile[0]) in range(6,10):
         u_id=uuid.uuid4()
         h_p= bcrypt.hash(req.password)
-        h_m= bcrypt.hash(req.mobile)
+        message=req.mobile
+        encMessage = rsa.encrypt(message.encode(),
+                         publicKey)
         new_user=models.User(name=req.name,email=req.email,password=h_p,
-                                    mobile=h_m,isVerified=False,uniqueId=str(u_id))
+                                    mobile=encMessage,isVerified=False,uniqueId=str(u_id),isAdmin=0)
         if emailvalidation.validate(req.email) :
             db.add(new_user)
             db.commit()
@@ -40,15 +45,16 @@ def create_user(req:schemas.User_creation,db: Session=Depends(get_db)):
                 ]
             yag.send(new_user.email, 'Verify-Email', contents)
 
-            return f"We have sent a verification mail to '{new_user.email}'. Please check your inbox and verify to continue."
+            return f"We have sent a verification mail to '{new_user.email}'. Please check your inbox and verify to continue." 
         else:
             return '''Invalid email-id is given.Please give the correct one'''
     else: 
-        return f"Please provide a valid mobile number!"
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+        detail=f'Please provide a valid mobile number!!!')
 
-
-
-def destroy(id,db:Session=Depends(database.get_db)):
+ 
+def destroy(id,db:Session=Depends(database.get_db)):  
+    
     user_delete=db.query(models.User).filter(models.User.id==id)
     if not user_delete.first():
         raise HTTPException(status_code=404, detail=f'user with the id {id} not found to delete')
